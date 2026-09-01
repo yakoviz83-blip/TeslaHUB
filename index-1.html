@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tesla Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0E1116;
+    --bg-elevated: #171B22;
+    --bg-tile: #1B2029;
+    --text: #EDEFF2;
+    --text-dim: #8B93A1;
+    --accent: #FF8A34;
+    --accent-soft: rgba(255,138,52,0.14);
+    --border: #262B34;
+    --danger: #E5484D;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    background: radial-gradient(circle at 15% 0%, #171c26 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+  .mono{ font-family: 'JetBrains Mono', monospace; }
+
+  /* ---- Global nav (consistent across all mini-apps) ---- */
+  .global-nav{
+    display:flex; align-items:center; gap:10px;
+    padding: 6px 16px;
+    background: #05070a;
+    border-bottom: 1px solid var(--border);
+    flex-shrink:0;
+    font-size:12.5px;
+  }
+  .global-home-btn{
+    display:flex; align-items:center; gap:5px;
+    color: var(--text-dim);
+    text-decoration:none;
+    font-weight:800;
+    padding: 4px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .global-nav-title{ color: var(--text-dim); margin-inline-start:auto; letter-spacing:0.3px; }
+  .global-app-icon{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    color: var(--text-dim);
+    text-decoration:none;
+    font-size:14px;
+    flex-shrink:0;
+  }
+  .global-app-icon.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 22px 32px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), #C85A00);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size: 16px; color:#0E1116;
+    flex-shrink:0;
+  }
+  .brand-text h1{ margin:0; font-size: 19px; font-weight: 800; letter-spacing: 0.2px; }
+  .brand-text p{ margin:2px 0 0; font-size: 12.5px; color: var(--text-dim); }
+  .clock{ font-size: 22px; font-weight: 700; letter-spacing: 0.5px; direction: ltr; }
+  .clock span{ color: var(--text-dim); font-size: 13px; font-weight: 500; display:block; text-align:left; margin-top:2px; }
+
+  main{
+    flex:1;
+    padding: 28px 32px 40px;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .status-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom: 22px;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .dot{ width:7px; height:7px; border-radius:50%; background: var(--accent); flex-shrink:0; }
+  .dot.live{ box-shadow: 0 0 0 0 var(--accent-soft); animation: pulse 2s infinite; }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 var(--accent-soft); }
+    70%{ box-shadow: 0 0 0 8px rgba(255,138,52,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(255,138,52,0); }
+  }
+  .refresh-btn{
+    margin-inline-start: auto;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor:pointer;
+  }
+  .refresh-btn:active{ background: var(--bg-tile); }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .tile{
+    background: var(--bg-tile);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    min-height: 148px;
+    display:flex;
+    flex-direction:column;
+    justify-content: space-between;
+    text-decoration: none;
+    color: var(--text);
+    position: relative;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+  .tile:active{ transform: scale(0.97); border-color: var(--accent); }
+
+  .tile-top{ display:flex; align-items:flex-start; justify-content: space-between; }
+  .tile-icon{
+    width: 46px; height:46px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 22px; font-weight: 800;
+    flex-shrink:0;
+  }
+  .tile-status{ display:flex; align-items:center; gap:6px; font-size:11.5px; color: var(--text-dim); }
+  .tile-status .dot{ background: #3DD68C; }
+
+  .tile-name{ font-size: 17px; font-weight: 700; margin: 16px 0 4px; }
+  .tile-desc{ font-size: 13px; color: var(--text-dim); line-height:1.4; }
+
+  .tile.add-new{
+    border-style: dashed;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color: var(--text-dim);
+  }
+  .tile.add-new .tile-icon{ background:none; border:1px dashed var(--border); margin: 0 auto 10px; }
+  .tile.add-new .tile-name{ font-size:14px; font-weight:600; color:var(--text-dim); margin:0; }
+
+  .empty, .error{
+    grid-column: 1 / -1;
+    text-align:center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+  .empty h2, .error h2{ color: var(--text); font-size:18px; margin: 0 0 8px; }
+  .empty code, .error code{
+    background: var(--bg-elevated);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: var(--accent);
+  }
+  .error{ color: var(--danger); }
+  .error h2{ color: var(--danger); }
+
+  footer{
+    text-align:center;
+    padding: 16px;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="global-nav">
+  <span class="global-home-btn">🏠 בית</span>
+  <span class="global-nav-title" id="navTitle">TeslaHub</span>
+</div>
+
+<script>
+  // מציג אייקון לכל מיני-אפ אחר בריפו, ומעדכן אוטומטית כשמוסיפים קבצים חדשים
+  (function(){
+    const GITHUB_USER = "yakoviz83-blip";
+    const REPO = "TeslaHUB";
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦" };
+    const currentPage = location.pathname.split("/").pop() || "index.html";
+
+    fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
+      .then(r => r.ok ? r.json() : [])
+      .then(items => {
+        const nav = document.querySelector(".global-nav");
+        const titleEl = document.getElementById("navTitle");
+        items
+          .filter(i => i.type === "file" && i.name.toLowerCase().endsWith(".html") && i.name.toLowerCase() !== "index.html")
+          .sort((a,b) => a.name.localeCompare(b.name))
+          .forEach(f => {
+            const a = document.createElement("a");
+            a.href = f.name;
+            a.className = "global-app-icon" + (f.name === currentPage ? " active" : "");
+            a.title = f.name.replace(".html","");
+            a.textContent = ICONS[f.name] || "📄";
+            nav.insertBefore(a, titleEl);
+          });
+      })
+      .catch(() => {}); // כשלון שקט - כפתור הבית עדיין עובד
+  })();
+</script>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">TH</div>
+    <div class="brand-text">
+      <h1>Tesla Hub</h1>
+      <p>כל הכלים שלך, במקום אחד</p>
+    </div>
+  </div>
+  <div class="clock mono" id="clock">--:--<span id="dateLine">--</span></div>
+</header>
+
+<main>
+  <div class="status-row">
+    <div class="dot live" id="statusDot"></div>
+    <span id="statusText">מחפש אפליקציות...</span>
+    <button class="refresh-btn" id="refreshBtn">רענון</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>Tesla Hub · מתעדכן אוטומטית מ-GitHub</footer>
+
+<script>
+  // ---- הגדרות ----
+  const GITHUB_USER = "yakoviz83-blip";
+  const REPO = "TeslaHUB";       // הריפו הזה - סורק אוטומטית כל קובץ HTML בתוכו
+  const TOPIC_TAG = "tesla-app"; // ריפואים נפרדים עם התגית הזו יופיעו כאן בנוסף
+  const CACHE_KEY = "teslahub-cache-v2";
+
+  // שמות/תיאורים נחמדים לעמודים מוכרים בריפו. עמוד חדש בלי ערך כאן עדיין יופיע, רק עם שם גנרי מהקובץ
+  const LOCAL_APP_LABELS = {
+    "chat.html": { name: "צ'אט", desc: "צ'אט בין הטלפון לטסלה", icon: "💬" },
+    "chat-1.html": { name: "צ'אט", desc: "צ'אט בין הטלפון לטסלה", icon: "💬" },
+    "qr-scanner.html": { name: "סריקת QR", desc: "סריקה דרך מצלמת הרכב", icon: "▦" },
+  };
+
+  // ---- שעון ----
+  function tick(){
+    const now = new Date();
+    const opts = { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit", hour12: false };
+    const dateOpts = { timeZone: "Asia/Jerusalem", weekday: "short", day: "numeric", month: "short" };
+    document.getElementById("clock").firstChild.textContent = now.toLocaleTimeString("en-GB", opts);
+    document.getElementById("dateLine").textContent = now.toLocaleDateString("he-IL", dateOpts);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // ---- אייקון מהשם ----
+  function initials(name){
+    return name.replace(/[-_]/g," ").trim().split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+  }
+
+  function renderApps(apps){
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    apps.forEach(app => {
+      const a = document.createElement("a");
+      a.className = "tile";
+      a.href = app.url;
+      a.innerHTML = `
+        <div class="tile-top">
+          <div class="tile-icon">${app.icon || initials(app.name)}</div>
+          <div class="tile-status"><span class="dot"></span>פעיל</div>
+        </div>
+        <div>
+          <div class="tile-name">${app.name}</div>
+          <div class="tile-desc">${app.desc}</div>
+        </div>`;
+      grid.appendChild(a);
+    });
+
+    // כרטיס תמיד בסוף - תזכורת איך להוסיף עוד אפליקציה
+    const addTile = document.createElement("div");
+    addTile.className = "tile add-new";
+    addTile.innerHTML = `
+      <div class="tile-icon">+</div>
+      <div class="tile-name">כל קובץ HTML חדש בריפו <code class="mono" style="color:var(--accent)">${REPO}</code><br>יופיע כאן אוטומטית.<br>אפשר גם לתייג ריפו נפרד ב-<code class="mono" style="color:var(--accent)">${TOPIC_TAG}</code></div>`;
+    grid.appendChild(addTile);
+  }
+
+  function renderEmpty(){
+    document.getElementById("grid").innerHTML = `
+      <div class="empty">
+        <h2>עדיין אין אפליקציות</h2>
+        <p>תעלה קובץ HTML לריפו <code>${REPO}</code>, או תייג ריפו נפרד ב-<code>${TOPIC_TAG}</code>, ורענן כאן.</p>
+      </div>`;
+  }
+
+  function renderError(message){
+    document.getElementById("grid").innerHTML = `
+      <div class="error">
+        <h2>לא הצלחתי לטעון את הרשימה</h2>
+        <p>${message}</p>
+      </div>`;
+  }
+
+  async function loadApps(){
+    const statusText = document.getElementById("statusText");
+    statusText.textContent = "מחפש אפליקציות...";
+
+    try {
+      // 1) קבצי HTML בתוך הריפו הזה עצמו - זה המקום שבו האפליקציות שבנינו בפועל חיות
+      const contentsRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`, {
+        headers: { "Accept": "application/vnd.github+json" }
+      });
+      if (!contentsRes.ok) throw new Error(`GitHub החזיר שגיאה (${contentsRes.status})`);
+      const contents = await contentsRes.json();
+
+      const localApps = contents
+        .filter(i => i.type === "file" && i.name.toLowerCase().endsWith(".html") && i.name.toLowerCase() !== "index.html")
+        .map(f => {
+          const label = LOCAL_APP_LABELS[f.name];
+          return {
+            name: label ? label.name : f.name.replace(".html",""),
+            desc: label ? label.desc : "עמוד בריפו הזה",
+            icon: label ? label.icon : null,
+            url: f.name
+          };
+        });
+
+      // 2) ריפואים נפרדים שתויגו ידנית (אופציונלי, בנוסף)
+      let externalApps = [];
+      try {
+        const reposRes = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100`, {
+          headers: { "Accept": "application/vnd.github+json" }
+        });
+        if (reposRes.ok){
+          const repos = await reposRes.json();
+          externalApps = repos
+            .filter(r => Array.isArray(r.topics) && r.topics.includes(TOPIC_TAG) && r.name !== REPO)
+            .map(r => ({
+              name: r.name,
+              desc: r.description || "אין תיאור",
+              icon: null,
+              url: r.homepage && r.homepage.trim() ? r.homepage : `https://${GITHUB_USER}.github.io/${r.name}/`
+            }));
+        }
+      } catch(e){ /* לא קריטי - נמשיך רק עם המקומיים */ }
+
+      const allApps = [...localApps, ...externalApps];
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ apps: allApps, savedAt: Date.now() }));
+
+      if (allApps.length === 0){
+        renderEmpty();
+        statusText.textContent = "לא נמצאו אפליקציות";
+      } else {
+        renderApps(allApps);
+        statusText.textContent = `${allApps.length} אפליקציות נטענו`;
+      }
+    } catch (err){
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached){
+        const { apps, savedAt } = JSON.parse(cached);
+        renderApps(apps);
+        const mins = Math.round((Date.now() - savedAt) / 60000);
+        statusText.textContent = `אין חיבור - מציג נתונים שמורים (מלפני ${mins} דק')`;
+      } else {
+        renderError("אין חיבור לאינטרנט ואין נתונים שמורים מהפעם הקודמת.");
+        statusText.textContent = "שגיאה בטעינה";
+      }
+    }
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", loadApps);
+  loadApps();
+</script>
+
+</body>
+</html>
