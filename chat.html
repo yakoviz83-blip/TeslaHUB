@@ -283,6 +283,7 @@
     <textarea id="msgInput" placeholder="כתוב הודעה, הדבק קישור או תמונה..." rows="1"></textarea>
     <button class="attach-btn" id="attachBtn" title="צרף תמונה">📎</button>
     <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
+    <button class="attach-btn" id="pasteBtn" title="הדבק מהלוח">📋</button>
     <button class="send-btn" id="sendBtn">שלח</button>
   </div>
   <div class="pending-img" id="pendingImgBox" style="display:none;">
@@ -485,6 +486,22 @@
     pendingImgBox.style.display = "none";
   });
 
+  const pasteBtn = document.getElementById("pasteBtn");
+  pasteBtn.addEventListener("click", async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        const start = msgInput.selectionStart || msgInput.value.length;
+        const end = msgInput.selectionEnd || msgInput.value.length;
+        msgInput.value = msgInput.value.slice(0, start) + text + msgInput.value.slice(end);
+        msgInput.dispatchEvent(new Event("input"));
+        msgInput.focus();
+      }
+    } catch (e) {
+      alert("לא ניתן לגשת ללוח - נסה להדביק ידנית לתוך השדה (לחיצה ארוכה על השדה ואז הדבק)");
+    }
+  });
+
   const attachBtn = document.getElementById("attachBtn");
   const imgFileInput = document.getElementById("imgFileInput");
   attachBtn.addEventListener("click", () => imgFileInput.click());
@@ -617,3 +634,4 @@
 
 </body>
 </html>
+
