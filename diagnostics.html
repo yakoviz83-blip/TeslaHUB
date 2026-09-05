@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>דיאגנוזה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0E1116;
+    --bg-panel: #171B22;
+    --bg-tile: #1B2029;
+    --text: #EDEFF2;
+    --text-dim: #8B93A1;
+    --text-on-accent: #1A0F04;
+    --accent: #FF8A34;
+    --accent-soft: rgba(255,138,52,0.14);
+    --border: #262B34;
+    --danger: #E5484D;
+    --ok: #3ecf6e;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; min-height:100%;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    min-height:100vh;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  .global-nav{
+    display:flex; align-items:center; gap:10px;
+    padding: 6px 16px;
+    background: #05070a;
+    border-bottom: 1px solid var(--border);
+    font-size:12.5px;
+  }
+  .global-home-btn{
+    display:flex; align-items:center; gap:5px;
+    color: var(--accent);
+    text-decoration:none;
+    font-weight:800;
+    padding: 4px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+  }
+  .global-nav-title{ color: var(--text-dim); margin-inline-start:auto; letter-spacing:0.3px; }
+  .global-app-icon{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    color: var(--text-dim);
+    text-decoration:none;
+    font-size:14px;
+    flex-shrink:0;
+  }
+  .global-app-icon.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  header{ padding: 14px 20px; border-bottom: 1px solid var(--border); }
+  header h1{ margin:0; font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  header h1 .ico{ color: var(--accent); }
+  header .ver{ font-size:11px; color: var(--text-dim); margin-top:2px; }
+
+  .disclaimer{
+    margin: 14px 16px 0;
+    padding: 12px 14px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    font-size: 12.5px;
+    line-height:1.6;
+    color: var(--text);
+  }
+
+  main{ padding: 16px; display:flex; flex-direction:column; gap:14px; padding-bottom:40px; }
+
+  .panel{
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .panel h2{
+    margin:0 0 10px;
+    font-size:14px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel h2 .ico{ color: var(--accent); }
+
+  .row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size:13px;
+  }
+  .row:last-child{ border-bottom:none; }
+  .row .k{ color: var(--text-dim); flex-shrink:0; }
+  .row .v{ text-align:left; word-break:break-all; }
+
+  .badge{
+    display:inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight:700;
+  }
+  .badge.ok{ background: rgba(62,207,110,0.15); color: var(--ok); }
+  .badge.no{ background: rgba(229,72,77,0.15); color: var(--danger); }
+  .badge.dim{ background: var(--bg-tile); color: var(--text-dim); }
+
+  button.action{
+    width:100%;
+    height:42px;
+    border:none;
+    border-radius:10px;
+    background: var(--accent);
+    color: var(--text-on-accent);
+    font-weight:800;
+    font-size:14px;
+    font-family:inherit;
+    margin-top:8px;
+  }
+  button.action:active{ opacity:0.85; }
+  button.action.secondary{ background: var(--bg-tile); color: var(--text); border:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="global-nav">
+  <a href="index.html" class="global-home-btn">🏠 בית</a>
+  <span class="global-nav-title" id="navTitle">TeslaHub</span>
+</div>
+
+<script>
+  (function(){
+    const GITHUB_USER = "yakoviz83-blip";
+    const REPO = "TeslaHUB";
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "diagnostics.html": "🩺" };
+    const currentPage = location.pathname.split("/").pop() || "index.html";
+
+    fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
+      .then(r => r.ok ? r.json() : [])
+      .then(items => {
+        const nav = document.querySelector(".global-nav");
+        const titleEl = document.getElementById("navTitle");
+        items
+          .filter(i => i.type === "file" && i.name.toLowerCase().endsWith(".html") && i.name.toLowerCase() !== "index.html")
+          .sort((a,b) => a.name.localeCompare(b.name))
+          .forEach(f => {
+            const a = document.createElement("a");
+            a.href = f.name;
+            a.className = "global-app-icon" + (f.name === currentPage ? " active" : "");
+            a.title = f.name.replace(".html","");
+            a.textContent = ICONS[f.name] || "📄";
+            nav.insertBefore(a, titleEl);
+          });
+      })
+      .catch(() => {});
+  })();
+</script>
+
+<header>
+  <h1><span class="ico">🩺</span> דיאגנוזה</h1>
+  <div class="ver mono">גרסה 2026-09-05 14:00</div>
+</header>
+
+<div class="disclaimer">
+  ⚠️ חשוב: זה מציג רק מה שדפדפן רגיל חושף דרך תקני ה-Web (חיישני תנועה, מצלמת/מיקרופון כלליים, מיקום, רשת וכו') —
+  <b>לא</b> גישה למצלמות האוטופיילוט, לרדאר או לחיישני האולטרסאונד של הרכב. אלה נמצאים על מחשב נפרד ומבודד
+  (מחשב ה-Autopilot/FSD) שאינו נגיש לדפדפן מטעמי בטיחות ואבטחה - אין דרך חוקית או נתמכת לגשת אליהם מדף אינטרנט.
+</div>
+
+<main>
+
+  <div class="panel">
+    <h2><span class="ico">💻</span> מכשיר ודפדפן</h2>
+    <div id="deviceInfo"></div>
+  </div>
+
+  <div class="panel">
+    <h2><span class="ico">🔋</span> סוללה</h2>
+    <div id="batteryInfo">בודק...</div>
+  </div>
+
+  <div class="panel">
+    <h2><span class="ico">📶</span> רשת</h2>
+    <div id="networkInfo"></div>
+  </div>
+
+  <div class="panel">
+    <h2><span class="ico">🎥</span> מצלמות ומיקרופונים</h2>
+    <div id="mediaInfo">לחצו לבדיקה - ידרוש אישור הרשאה כדי להציג שמות מלאים</div>
+    <button class="action" id="mediaBtn">בדוק מצלמות/מיקרופונים</button>
+  </div>
+
+  <div class="panel">
+    <h2><span class="ico">📍</span> מיקום (GPS)</h2>
+    <div id="geoInfo">לחצו לבדיקה</div>
+    <button class="action" id="geoBtn">קבל מיקום נוכחי</button>
+  </div>
+
+  <div class="panel">
+    <h2><span class="ico">🧭</span> חיישני תנועה וכיוון (חי)</h2>
+    <div id="motionInfo">לחצו כדי להתחיל</div>
+    <button class="action" id="motionBtn">התחל מעקב חי</button>
+    <button class="action secondary" id="motionStopBtn" style="display:none">עצור מעקב</button>
+  </div>
+
+  <div class="panel">
+    <h2><span class="ico">💾</span> אחסון</h2>
+    <div id="storageInfo">בודק...</div>
+  </div>
+
+  <div class="panel">
+    <h2><span class="ico">🔐</span> סטטוס הרשאות</h2>
+    <div id="permissionsInfo">בודק...</div>
+  </div>
+
+</main>
+
+<script>
+function row(k, v) {
+  return `<div class="row"><span class="k">${k}</span><span class="v mono">${v}</span></div>`;
+}
+function badge(text, kind) {
+  return `<span class="badge ${kind}">${text}</span>`;
+}
+
+// ---- מכשיר ודפדפן ----
+(function () {
+  const el = document.getElementById('deviceInfo');
+  let html = '';
+  html += row('User Agent', navigator.userAgent);
+  html += row('פלטפורמה', navigator.platform || '-');
+  html += row('ליבות מעבד (משוער)', navigator.hardwareConcurrency || 'לא נתמך');
+  html += row('זיכרון מכשיר (משוער)', navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'לא נתמך');
+  html += row('שפה', navigator.language);
+  html += row('מחובר לרשת', navigator.onLine ? badge('כן', 'ok') : badge('לא', 'no'));
+  html += row('רזולוציית מסך', screen.width + ' x ' + screen.height);
+  html += row('צפיפות פיקסלים', window.devicePixelRatio || 1);
+  html += row('גודל חלון גלישה', window.innerWidth + ' x ' + window.innerHeight);
+  html += row('נגיעה נתמכת', ('ontouchstart' in window) ? badge('כן', 'ok') : badge('לא', 'dim'));
+  el.innerHTML = html;
+})();
+
+// ---- סוללה ----
+(function () {
+  const el = document.getElementById('batteryInfo');
+  if (navigator.getBattery) {
+    navigator.getBattery().then((battery) => {
+      function render() {
+        let html = '';
+        html += row('אחוז טעינה', Math.round(battery.level * 100) + '%');
+        html += row('בטעינה', battery.charging ? badge('כן', 'ok') : badge('לא', 'dim'));
+        el.innerHTML = html;
+      }
+      render();
+      battery.addEventListener('levelchange', render);
+      battery.addEventListener('chargingchange', render);
+    }).catch(() => { el.innerHTML = row('סטטוס', 'לא זמין בדפדפן זה'); });
+  } else {
+    el.innerHTML = row('סטטוס', 'ה-Battery API לא נתמך בדפדפן זה');
+  }
+})();
+
+// ---- רשת ----
+(function () {
+  const el = document.getElementById('networkInfo');
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn) {
+    let html = '';
+    html += row('סוג חיבור', conn.effectiveType || '-');
+    html += row('מהירות משוערת', (conn.downlink != null ? conn.downlink + ' Mbps' : '-'));
+    html += row('השהיה (RTT)', (conn.rtt != null ? conn.rtt + ' ms' : '-'));
+    html += row('חיסכון בנתונים', conn.saveData ? badge('פעיל', 'ok') : badge('כבוי', 'dim'));
+    el.innerHTML = html;
+  } else {
+    el.innerHTML = row('סטטוס', 'מידע רשת מפורט לא נתמך בדפדפן זה');
+  }
+})();
+
+// ---- מצלמות ומיקרופונים ----
+document.getElementById('mediaBtn').addEventListener('click', async () => {
+  const el = document.getElementById('mediaInfo');
+  el.innerHTML = 'מבקש הרשאה...';
+  try {
+    // Requesting a stream first is what reveals real device labels (not just generic counts)
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    stream.getTracks().forEach(t => t.stop());
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cams = devices.filter(d => d.kind === 'videoinput');
+    const mics = devices.filter(d => d.kind === 'audioinput');
+    const speakers = devices.filter(d => d.kind === 'audiooutput');
+
+    let html = '';
+    html += row('מצלמות זמינות לדפדפן', cams.length);
+    cams.forEach((c, i) => html += row('  מצלמה ' + (i + 1), c.label || '(ללא שם)'));
+    html += row('מיקרופונים זמינים לדפדפן', mics.length);
+    mics.forEach((m, i) => html += row('  מיקרופון ' + (i + 1), m.label || '(ללא שם)'));
+    html += row('רמקולים זמינים לדפדפן', speakers.length);
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = row('שגיאה', 'ההרשאה נדחתה או שאין מצלמה/מיקרופון זמינים: ' + e.message);
+  }
+});
+
+// ---- מיקום ----
+document.getElementById('geoBtn').addEventListener('click', () => {
+  const el = document.getElementById('geoInfo');
+  el.innerHTML = 'מאתר מיקום...';
+  if (!navigator.geolocation) {
+    el.innerHTML = row('סטטוס', 'שירותי מיקום לא נתמכים');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      let html = '';
+      html += row('קו רוחב', pos.coords.latitude.toFixed(7));
+      html += row('קו אורך', pos.coords.longitude.toFixed(7));
+      html += row('דיוק', Math.round(pos.coords.accuracy) + ' מ׳');
+      html += row('גובה', pos.coords.altitude != null ? Math.round(pos.coords.altitude) + ' מ׳' : 'לא זמין');
+      html += row('מהירות', pos.coords.speed != null ? (pos.coords.speed * 3.6).toFixed(1) + ' קמ״ש' : 'לא זמין');
+      html += row('כיוון תנועה', pos.coords.heading != null ? Math.round(pos.coords.heading) + '°' : 'לא זמין');
+      el.innerHTML = html;
+    },
+    (err) => { el.innerHTML = row('שגיאה', err.message); },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+});
+
+// ---- חיישני תנועה ----
+let motionHandler = null;
+let orientationHandler = null;
+
+document.getElementById('motionBtn').addEventListener('click', async () => {
+  const el = document.getElementById('motionInfo');
+  const startBtn = document.getElementById('motionBtn');
+  const stopBtn = document.getElementById('motionStopBtn');
+
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    try { await DeviceMotionEvent.requestPermission(); } catch (e) { /* ignore - not iOS */ }
+  }
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try { await DeviceOrientationEvent.requestPermission(); } catch (e) { /* ignore */ }
+  }
+
+  let latestMotion = {};
+  let latestOrientation = {};
+
+  function render() {
+    let html = '';
+    html += row('תאוצה X', latestMotion.x != null ? latestMotion.x.toFixed(2) : '-');
+    html += row('תאוצה Y', latestMotion.y != null ? latestMotion.y.toFixed(2) : '-');
+    html += row('תאוצה Z', latestMotion.z != null ? latestMotion.z.toFixed(2) : '-');
+    html += row('סיבוב אלפא', latestOrientation.alpha != null ? Math.round(latestOrientation.alpha) + '°' : '-');
+    html += row('סיבוב בטא', latestOrientation.beta != null ? Math.round(latestOrientation.beta) + '°' : '-');
+    html += row('סיבוב גאמא', latestOrientation.gamma != null ? Math.round(latestOrientation.gamma) + '°' : '-');
+    el.innerHTML = html;
+  }
+
+  motionHandler = (e) => {
+    const acc = e.acceleration || e.accelerationIncludingGravity || {};
+    latestMotion = { x: acc.x, y: acc.y, z: acc.z };
+    render();
+  };
+  orientationHandler = (e) => {
+    latestOrientation = { alpha: e.alpha, beta: e.beta, gamma: e.gamma };
+    render();
+  };
+
+  window.addEventListener('devicemotion', motionHandler);
+  window.addEventListener('deviceorientation', orientationHandler);
+
+  startBtn.style.display = 'none';
+  stopBtn.style.display = 'block';
+});
+
+document.getElementById('motionStopBtn').addEventListener('click', () => {
+  if (motionHandler) window.removeEventListener('devicemotion', motionHandler);
+  if (orientationHandler) window.removeEventListener('deviceorientation', orientationHandler);
+  document.getElementById('motionBtn').style.display = 'block';
+  document.getElementById('motionStopBtn').style.display = 'none';
+  document.getElementById('motionInfo').innerHTML = 'המעקב הופסק';
+});
+
+// ---- אחסון ----
+(function () {
+  const el = document.getElementById('storageInfo');
+  if (navigator.storage && navigator.storage.estimate) {
+    navigator.storage.estimate().then((est) => {
+      const usedMB = (est.usage / (1024 * 1024)).toFixed(1);
+      const quotaMB = (est.quota / (1024 * 1024)).toFixed(0);
+      let html = '';
+      html += row('בשימוש', usedMB + ' MB');
+      html += row('מכסה זמינה', quotaMB + ' MB');
+      el.innerHTML = html;
+    }).catch(() => { el.innerHTML = row('סטטוס', 'לא זמין'); });
+  } else {
+    el.innerHTML = row('סטטוס', 'Storage API לא נתמך בדפדפן זה');
+  }
+})();
+
+// ---- סטטוס הרשאות ----
+(function () {
+  const el = document.getElementById('permissionsInfo');
+  if (!navigator.permissions || !navigator.permissions.query) {
+    el.innerHTML = row('סטטוס', 'Permissions API לא נתמך בדפדפן זה');
+    return;
+  }
+  const names = ['geolocation', 'camera', 'microphone', 'notifications'];
+  const labels = { geolocation: 'מיקום', camera: 'מצלמה', microphone: 'מיקרופון', notifications: 'התראות' };
+  const stateLabel = { granted: ['מאושר', 'ok'], denied: ['נחסם', 'no'], prompt: ['ידרוש שאלה', 'dim'] };
+
+  Promise.all(names.map((name) =>
+    navigator.permissions.query({ name }).then(
+      (status) => ({ name, state: status.state }),
+      () => ({ name, state: 'not-supported' })
+    )
+  )).then((results) => {
+    let html = '';
+    results.forEach((r) => {
+      const label = labels[r.name] || r.name;
+      const [text, kind] = stateLabel[r.state] || ['לא נתמך', 'dim'];
+      html += row(label, badge(text, kind));
+    });
+    el.innerHTML = html;
+  });
+})();
+</script>
+
+</body>
+</html>
