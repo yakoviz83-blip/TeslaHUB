@@ -208,7 +208,7 @@
   (function(){
     const GITHUB_USER = "yakoviz83-blip";
     const REPO = "TeslaHUB";
-    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦" };
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "diagnostics.html": "🩺" };
     const currentPage = location.pathname.split("/").pop() || "index.html";
 
     fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
@@ -238,7 +238,7 @@
     <div class="brand-text">
       <h1>Tesla Hub</h1>
       <p>כל הכלים שלך, במקום אחד</p>
-      <p style="font-size:11px;color:var(--text-dim);margin-top:2px" class="mono">גרסה 2026-09-05 12:40</p>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:2px" class="mono">גרסה 2026-09-05 14:00</p>
     </div>
   </div>
   <div class="clock mono" id="clock">--:--<span id="dateLine">--</span></div>
@@ -279,6 +279,7 @@
     "chat.html": { name: "צ'אט", desc: "צ'אט בין הטלפון לטסלה", icon: "💬" },
     "chat-1.html": { name: "צ'אט", desc: "צ'אט בין הטלפון לטסלה", icon: "💬" },
     "qr-scanner.html": { name: "סריקת QR", desc: "סריקה דרך מצלמת הרכב", icon: "▦" },
+    "diagnostics.html": { name: "דיאגנוזה", desc: "מידע על חיישני הדפדפן והמכשיר", icon: "🩺" },
   };
 
   // ---- שעון ----
@@ -475,5 +476,6 @@
 
 </body>
 </html>
+
 
 
