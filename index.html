@@ -238,7 +238,7 @@
     <div class="brand-text">
       <h1>Tesla Hub</h1>
       <p>כל הכלים שלך, במקום אחד</p>
-      <p style="font-size:11px;color:var(--text-dim);margin-top:2px" class="mono">גרסה 2026-09-05 12:30</p>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:2px" class="mono">גרסה 2026-09-05 12:40</p>
     </div>
   </div>
   <div class="clock mono" id="clock">--:--<span id="dateLine">--</span></div>
@@ -250,6 +250,7 @@
     <span id="statusText">מחפש אפליקציות...</span>
     <button class="refresh-btn" id="refreshBtn">רענון</button>
     <button class="refresh-btn" id="locationBtn" style="background:var(--accent-soft);color:var(--accent)">📍 אפשר גישה למיקום</button>
+    <span id="lastLocationText" class="mono" style="font-size:11px;color:var(--text-dim)"></span>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -435,13 +436,35 @@
   // Pre-request geolocation permission from THIS origin before opening any app -
   // Chrome grants permissions per-origin, so once allowed here it carries over
   // automatically to any app hosted under the same yakoviz83-blip.github.io origin.
+  const lastLocationText = document.getElementById("lastLocationText");
+
+  function showSavedLocation() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("navi_last_location") || "null");
+      if (saved && typeof saved.lat === "number") {
+        const when = new Date(saved.ts);
+        lastLocationText.textContent = `מיקום אחרון: ${saved.lat.toFixed(5)}, ${saved.lng.toFixed(5)} (${when.toLocaleTimeString("he-IL")})`;
+      }
+    } catch (e) { /* ignore corrupt data */ }
+  }
+
+  showSavedLocation();
+
   document.getElementById("locationBtn").addEventListener("click", () => {
     if (!navigator.geolocation) {
       alert("שירותי מיקום לא נתמכים בדפדפן הזה");
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      () => { alert("הגישה למיקום אושרה ✓"); },
+      (pos) => {
+        localStorage.setItem("navi_last_location", JSON.stringify({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          ts: Date.now()
+        }));
+        showSavedLocation();
+        alert("הגישה למיקום אושרה ✓");
+      },
       (err) => { alert("לא אושרה גישה למיקום: " + err.message); },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -452,4 +475,5 @@
 
 </body>
 </html>
+
 
