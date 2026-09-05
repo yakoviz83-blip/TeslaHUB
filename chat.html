@@ -276,7 +276,7 @@
 <header>
   <h1><span class="ico">💬</span> Tesla ⇄ טלפון</h1>
   <div class="who-badge" id="whoBadge">אני מזוהה בתור: <b id="whoLabel">...</b></div>
-  <div style="font-size:11px;color:#888;margin-top:2px">גרסה 2026-09-05 12:00</div>
+  <div style="font-size:11px;color:#888;margin-top:2px">גרסה 2026-09-05 13:00</div>
 </header>
 
 <div class="composer">
@@ -286,6 +286,11 @@
     <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
     <button class="attach-btn" id="pasteBtn" title="הדבק מהלוח">📋</button>
     <button class="send-btn" id="sendBtn">שלח</button>
+  </div>
+  <div class="composer-row" style="gap:6px;margin-top:6px">
+    <button class="attach-btn" id="copyBtn" title="העתק" style="font-size:12px;padding:6px 10px">📄 העתק</button>
+    <button class="attach-btn" id="selectAllBtn" title="בחר הכל" style="font-size:12px;padding:6px 10px">🔲 בחר הכל</button>
+    <button class="attach-btn" id="clearBtn" title="נקה" style="font-size:12px;padding:6px 10px">🗑️ נקה</button>
   </div>
   <div class="pending-img" id="pendingImgBox" style="display:none;">
     <img id="pendingImgPreview" src="">
@@ -503,6 +508,31 @@
     }
   });
 
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.addEventListener("click", async () => {
+    if (!msgInput.value) return;
+    try {
+      await navigator.clipboard.writeText(msgInput.value);
+    } catch (e) {
+      // Fallback for browsers without Clipboard API write access
+      msgInput.select();
+      try { document.execCommand("copy"); } catch (e2) { /* ignore */ }
+    }
+  });
+
+  const selectAllBtn = document.getElementById("selectAllBtn");
+  selectAllBtn.addEventListener("click", () => {
+    msgInput.focus();
+    msgInput.select();
+  });
+
+  const clearBtn = document.getElementById("clearBtn");
+  clearBtn.addEventListener("click", () => {
+    msgInput.value = "";
+    msgInput.dispatchEvent(new Event("input"));
+    msgInput.focus();
+  });
+
   const attachBtn = document.getElementById("attachBtn");
   const imgFileInput = document.getElementById("imgFileInput");
   attachBtn.addEventListener("click", () => imgFileInput.click());
@@ -635,4 +665,5 @@
 
 </body>
 </html>
+
 
