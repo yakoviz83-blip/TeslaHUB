@@ -238,6 +238,7 @@
     <div class="brand-text">
       <h1>Tesla Hub</h1>
       <p>כל הכלים שלך, במקום אחד</p>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:2px" class="mono">גרסה 2026-09-05 12:30</p>
     </div>
   </div>
   <div class="clock mono" id="clock">--:--<span id="dateLine">--</span></div>
@@ -248,12 +249,22 @@
     <div class="dot live" id="statusDot"></div>
     <span id="statusText">מחפש אפליקציות...</span>
     <button class="refresh-btn" id="refreshBtn">רענון</button>
+    <button class="refresh-btn" id="locationBtn" style="background:var(--accent-soft);color:var(--accent)">📍 אפשר גישה למיקום</button>
   </div>
 
   <div class="grid" id="grid"></div>
 </main>
 
 <footer>Tesla Hub · מתעדכן אוטומטית מ-GitHub</footer>
+
+<div id="appModal" style="display:none;position:fixed;inset:0;background:#000;z-index:2000;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#0a0d12;border-bottom:1px solid var(--border);flex-shrink:0">
+    <button id="modalCloseBtn" style="background:var(--accent-soft);color:var(--accent);border:none;border-radius:999px;padding:8px 14px;font-weight:700;font-family:inherit">← חזרה לדשבורד</button>
+    <span id="modalTitle" style="color:var(--text);font-weight:800;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <a id="modalOpenNewTab" target="_blank" style="color:var(--text-dim);text-decoration:none;font-size:13px;white-space:nowrap">פתח בנפרד ↗</a>
+  </div>
+  <iframe id="appIframe" style="flex:1;border:none;width:100%;background:#fff" allow="geolocation; camera; microphone; clipboard-read; clipboard-write; autoplay"></iframe>
+</div>
 
 <script>
   // ---- הגדרות ----
@@ -302,6 +313,10 @@
           <div class="tile-name">${app.name}</div>
           <div class="tile-desc">${app.desc}</div>
         </div>`;
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        openAppInModal(app.name, app.url);
+      });
       grid.appendChild(a);
     });
 
@@ -398,8 +413,43 @@
   }
 
   document.getElementById("refreshBtn").addEventListener("click", loadApps);
+
+  // ---- מציג אפליקציה בתוך הדשבורד (iframe) במקום לנווט לדף חדש ----
+  const appModal = document.getElementById("appModal");
+  const appIframe = document.getElementById("appIframe");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalOpenNewTab = document.getElementById("modalOpenNewTab");
+
+  function openAppInModal(name, url){
+    modalTitle.textContent = name;
+    modalOpenNewTab.href = url;
+    appIframe.src = url;
+    appModal.style.display = "flex";
+  }
+
+  document.getElementById("modalCloseBtn").addEventListener("click", () => {
+    appModal.style.display = "none";
+    appIframe.src = ""; // stop the app running in the background
+  });
+
+  // Pre-request geolocation permission from THIS origin before opening any app -
+  // Chrome grants permissions per-origin, so once allowed here it carries over
+  // automatically to any app hosted under the same yakoviz83-blip.github.io origin.
+  document.getElementById("locationBtn").addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      alert("שירותי מיקום לא נתמכים בדפדפן הזה");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      () => { alert("הגישה למיקום אושרה ✓"); },
+      (err) => { alert("לא אושרה גישה למיקום: " + err.message); },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
   loadApps();
 </script>
 
 </body>
 </html>
+
