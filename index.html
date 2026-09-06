@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tesla Hub</title>
+<title>TesMot</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0E1116;
-    --bg-elevated: #171B22;
-    --bg-tile: #1B2029;
-    --text: #EDEFF2;
-    --text-dim: #8B93A1;
-    --accent: #FF8A34;
+    --bg: #0A0C0B;
+    --bg-elevated: #141917;
+    --bg-tile: #1A211D;
+    --text: #E8EDE9;
+    --text-dim: #8B978E;
+    --accent: #2FA76B;
     --accent-soft: rgba(255,138,52,0.14);
-    --border: #262B34;
+    --border: #232925;
     --danger: #E5484D;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
   html,body{margin:0; padding:0; height:100%;}
   body{
-    background: radial-gradient(circle at 15% 0%, #171c26 0%, var(--bg) 55%);
+    background: radial-gradient(circle at 15% 0%, #121a15 0%, var(--bg) 55%);
     color: var(--text);
     font-family: 'Manrope', sans-serif;
     min-height: 100vh;
@@ -36,7 +36,7 @@
   .global-nav{
     display:flex; align-items:center; gap:10px;
     padding: 6px 16px;
-    background: #05070a;
+    background: #070907;
     border-bottom: 1px solid var(--border);
     flex-shrink:0;
     font-size:12.5px;
@@ -76,9 +76,9 @@
   .brand-mark{
     width: 34px; height: 34px;
     border-radius: 9px;
-    background: linear-gradient(135deg, var(--accent), #C85A00);
+    background: linear-gradient(135deg, var(--accent), #1F6B46);
     display:flex; align-items:center; justify-content:center;
-    font-weight:800; font-size: 16px; color:#0E1116;
+    font-weight:800; font-size: 16px; color:#0A0C0B;
     flex-shrink:0;
   }
   .brand-text h1{ margin:0; font-size: 19px; font-weight: 800; letter-spacing: 0.2px; }
@@ -200,15 +200,29 @@
 
 <div class="global-nav">
   <span class="global-home-btn">🏠 בית</span>
-  <span class="global-nav-title" id="navTitle">TeslaHub</span>
+  <span class="global-nav-title" id="navTitle">TesMot</span>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="theme.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtOg6Bq9Q02iR_G1TSlN7pSZ0wNHp-PdM",
+    authDomain: "tesdb-d3a16.firebaseapp.com",
+    databaseURL: "https://tesdb-d3a16-default-rtdb.firebaseio.com",
+    projectId: "tesdb-d3a16",
+  };
+  firebase.initializeApp(firebaseConfig);
+  TeslaHubTheme.load();
+</script>
 
 <script>
   // מציג אייקון לכל מיני-אפ אחר בריפו, ומעדכן אוטומטית כשמוסיפים קבצים חדשים
   (function(){
     const GITHUB_USER = "yakoviz83-blip";
     const REPO = "TeslaHUB";
-    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "diagnostics.html": "🩺" };
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "tasks.html": "📝", "settings.html": "🎨" };
     const currentPage = location.pathname.split("/").pop() || "index.html";
 
     fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
@@ -234,11 +248,10 @@
 
 <header>
   <div class="brand">
-    <div class="brand-mark">TH</div>
+    <div class="brand-mark">TM</div>
     <div class="brand-text">
-      <h1>Tesla Hub</h1>
-      <p>כל הכלים שלך, במקום אחד</p>
-      <p style="font-size:11px;color:var(--text-dim);margin-top:2px" class="mono">גרסה 2026-09-05 14:00</p>
+      <h1>TesMot</h1>
+      <p>Build In Motion.</p>
     </div>
   </div>
   <div class="clock mono" id="clock">--:--<span id="dateLine">--</span></div>
@@ -249,23 +262,12 @@
     <div class="dot live" id="statusDot"></div>
     <span id="statusText">מחפש אפליקציות...</span>
     <button class="refresh-btn" id="refreshBtn">רענון</button>
-    <button class="refresh-btn" id="locationBtn" style="background:var(--accent-soft);color:var(--accent)">📍 אפשר גישה למיקום</button>
-    <span id="lastLocationText" class="mono" style="font-size:11px;color:var(--text-dim)"></span>
   </div>
 
   <div class="grid" id="grid"></div>
 </main>
 
-<footer>Tesla Hub · מתעדכן אוטומטית מ-GitHub</footer>
-
-<div id="appModal" style="display:none;position:fixed;inset:0;background:#000;z-index:2000;flex-direction:column">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#0a0d12;border-bottom:1px solid var(--border);flex-shrink:0">
-    <button id="modalCloseBtn" style="background:var(--accent-soft);color:var(--accent);border:none;border-radius:999px;padding:8px 14px;font-weight:700;font-family:inherit">← חזרה לדשבורד</button>
-    <span id="modalTitle" style="color:var(--text);font-weight:800;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-    <a id="modalOpenNewTab" target="_blank" style="color:var(--text-dim);text-decoration:none;font-size:13px;white-space:nowrap">פתח בנפרד ↗</a>
-  </div>
-  <iframe id="appIframe" style="flex:1;border:none;width:100%;background:#fff" allow="geolocation; camera; microphone; clipboard-read; clipboard-write; autoplay"></iframe>
-</div>
+<footer>TesMot · מתעדכן אוטומטית מ-GitHub</footer>
 
 <script>
   // ---- הגדרות ----
@@ -279,7 +281,8 @@
     "chat.html": { name: "צ'אט", desc: "צ'אט בין הטלפון לטסלה", icon: "💬" },
     "chat-1.html": { name: "צ'אט", desc: "צ'אט בין הטלפון לטסלה", icon: "💬" },
     "qr-scanner.html": { name: "סריקת QR", desc: "סריקה דרך מצלמת הרכב", icon: "▦" },
-    "diagnostics.html": { name: "דיאגנוזה", desc: "מידע על חיישני הדפדפן והמכשיר", icon: "🩺" },
+    "tasks.html": { name: "משימות", desc: "פתקים ותזכורות עם מיקום וזמן", icon: "📝" },
+    "settings.html": { name: "הגדרות עיצוב", desc: "צבעים לכל המערכת", icon: "🎨" },
   };
 
   // ---- שעון ----
@@ -315,10 +318,6 @@
           <div class="tile-name">${app.name}</div>
           <div class="tile-desc">${app.desc}</div>
         </div>`;
-      a.addEventListener("click", (e) => {
-        e.preventDefault();
-        openAppInModal(app.name, app.url);
-      });
       grid.appendChild(a);
     });
 
@@ -415,67 +414,8 @@
   }
 
   document.getElementById("refreshBtn").addEventListener("click", loadApps);
-
-  // ---- מציג אפליקציה בתוך הדשבורד (iframe) במקום לנווט לדף חדש ----
-  const appModal = document.getElementById("appModal");
-  const appIframe = document.getElementById("appIframe");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalOpenNewTab = document.getElementById("modalOpenNewTab");
-
-  function openAppInModal(name, url){
-    modalTitle.textContent = name;
-    modalOpenNewTab.href = url;
-    appIframe.src = url;
-    appModal.style.display = "flex";
-  }
-
-  document.getElementById("modalCloseBtn").addEventListener("click", () => {
-    appModal.style.display = "none";
-    appIframe.src = ""; // stop the app running in the background
-  });
-
-  // Pre-request geolocation permission from THIS origin before opening any app -
-  // Chrome grants permissions per-origin, so once allowed here it carries over
-  // automatically to any app hosted under the same yakoviz83-blip.github.io origin.
-  const lastLocationText = document.getElementById("lastLocationText");
-
-  function showSavedLocation() {
-    try {
-      const saved = JSON.parse(localStorage.getItem("navi_last_location") || "null");
-      if (saved && typeof saved.lat === "number") {
-        const when = new Date(saved.ts);
-        lastLocationText.textContent = `מיקום אחרון: ${saved.lat.toFixed(5)}, ${saved.lng.toFixed(5)} (${when.toLocaleTimeString("he-IL")})`;
-      }
-    } catch (e) { /* ignore corrupt data */ }
-  }
-
-  showSavedLocation();
-
-  document.getElementById("locationBtn").addEventListener("click", () => {
-    if (!navigator.geolocation) {
-      alert("שירותי מיקום לא נתמכים בדפדפן הזה");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        localStorage.setItem("navi_last_location", JSON.stringify({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          ts: Date.now()
-        }));
-        showSavedLocation();
-        alert("הגישה למיקום אושרה ✓");
-      },
-      (err) => { alert("לא אושרה גישה למיקום: " + err.message); },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  });
-
   loadApps();
 </script>
 
 </body>
 </html>
-
-
-
