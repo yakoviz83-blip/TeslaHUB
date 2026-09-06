@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>משימות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C0B;
+    --bg-panel: #141917;
+    --bg-tile: #1A211D;
+    --text: #E8EDE9;
+    --text-dim: #8B978E;
+    --text-on-accent: #05130B;
+    --accent: #2FA76B;
+    --accent-soft: rgba(47,167,107,0.14);
+    --border: #232925;
+    --danger: #E5484D;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%; overflow:hidden;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+  .mono{ font-family: 'JetBrains Mono', monospace; }
+
+  /* ---- Global nav ---- */
+  .global-nav{
+    display:flex; align-items:center; gap:10px;
+    padding: 6px 16px;
+    background: #070907;
+    border-bottom: 1px solid var(--border);
+    flex-shrink:0;
+    font-size:12.5px;
+  }
+  .global-home-btn{
+    display:flex; align-items:center; gap:5px;
+    color: var(--accent);
+    text-decoration:none;
+    font-weight:800;
+    padding: 4px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+  }
+  .global-home-btn:active{ background: var(--accent-soft); }
+  .global-nav-title{ color: var(--text-dim); margin-inline-start:auto; letter-spacing:0.3px; }
+  .global-app-icon{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    color: var(--text-dim);
+    text-decoration:none;
+    font-size:14px;
+    flex-shrink:0;
+  }
+  .global-app-icon.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink:0;
+  }
+  header h1{ margin:0; font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  header h1 .ico{ color: var(--accent); }
+
+  /* ---- Tabs ---- */
+  .tabs{ display:flex; gap:8px; padding: 10px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .tab-btn{
+    flex:1; background: var(--bg-tile); border: 1px solid var(--border); color: var(--text-dim);
+    border-radius: 10px; padding: 9px 10px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer;
+  }
+  .tab-btn.active{ background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+  /* ---- New task ---- */
+  .new-task-bar{ padding: 10px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .new-task-toggle{
+    width:100%; background: var(--accent); color: var(--text-on-accent); border:none;
+    border-radius: 12px; padding: 12px; font-weight:800; font-size:14.5px; font-family:inherit; cursor:pointer;
+  }
+  .new-task-form{
+    display:none; flex-direction:column; gap:10px; margin-top:10px;
+    background: var(--bg-panel); border:1px solid var(--border); border-radius:14px; padding:14px;
+  }
+  .new-task-form.show{ display:flex; }
+  .new-task-form input, .new-task-form textarea{
+    background: var(--bg); border:1px solid var(--border); color:var(--text);
+    border-radius:10px; padding:10px 12px; font-family:inherit; font-size:14px; width:100%;
+  }
+  .new-task-form textarea{ resize:none; min-height:44px; }
+  .field-label{ font-size:11.5px; color:var(--text-dim); margin-bottom:-4px; }
+  .quick-times{ display:flex; gap:6px; flex-wrap:wrap; }
+  .quick-time-btn{
+    background: var(--bg); border:1px solid var(--border); color:var(--text-dim);
+    border-radius:8px; padding:6px 10px; font-size:12px; font-family:inherit; cursor:pointer;
+  }
+  .quick-time-btn.picked{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .form-actions{ display:flex; gap:8px; margin-top:2px; }
+  .form-actions button{
+    flex:1; border-radius:10px; padding:10px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; border:1px solid var(--border);
+  }
+  .btn-save{ background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
+  .btn-cancel{ background: var(--bg); color: var(--text-dim); }
+
+  /* ---- List ---- */
+  .list{ flex:1; overflow-y:auto; padding: 14px 16px; display:flex; flex-direction:column; gap:10px; }
+  .empty{ margin:auto; text-align:center; color:var(--text-dim); font-size:13.5px; }
+
+  .task-card{
+    background: var(--bg-tile); border:1px solid var(--border); border-radius:14px; padding:14px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .task-card.done{ opacity:0.6; }
+  .task-top{ display:flex; align-items:flex-start; gap:10px; }
+  .check-btn{
+    flex-shrink:0; width:26px; height:26px; border-radius:8px; border:2px solid var(--border);
+    background:none; cursor:pointer; color: var(--accent); font-size:15px; display:flex; align-items:center; justify-content:center;
+  }
+  .check-btn.checked{ background: var(--accent); border-color:var(--accent); color: var(--text-on-accent); }
+  .task-text{ flex:1; font-size:15px; font-weight:600; line-height:1.4; word-break:break-word; }
+  .task-text.done{ text-decoration: line-through; color: var(--text-dim); }
+  .task-meta{ display:flex; flex-wrap:wrap; gap:8px; padding-inline-start:36px; }
+  .meta-chip{
+    display:inline-flex; align-items:center; gap:5px;
+    background: var(--bg); border:1px solid var(--border); border-radius:8px;
+    padding: 4px 9px; font-size:12px; color: var(--text-dim); text-decoration:none;
+  }
+  .meta-chip.overdue{ color: var(--danger); border-color: var(--danger); }
+  .meta-chip.nav{ color: var(--accent); border-color: var(--accent); }
+  .task-actions{ display:flex; gap:8px; padding-inline-start:36px; }
+  .task-actions button{
+    background:none; border:1px solid var(--border); color:var(--text-dim);
+    border-radius:8px; padding:5px 10px; font-size:12px; font-family:inherit; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="global-nav">
+  <a href="index.html" class="global-home-btn">🏠 בית</a>
+  <span class="global-nav-title" id="navTitle">TesMot</span>
+</div>
+
+<header>
+  <h1><span class="ico">📝</span> משימות</h1>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tabActive">פעיל (<span id="countActive">0</span>)</button>
+  <button class="tab-btn" id="tabDone">בוצע (<span id="countDone">0</span>)</button>
+</div>
+
+<div class="new-task-bar">
+  <button class="new-task-toggle" id="newTaskToggle">+ משימה חדשה</button>
+  <div class="new-task-form" id="newTaskForm">
+    <div class="field-label">מה צריך לעשות?</div>
+    <textarea id="taskText" placeholder="לדוגמה: לאסוף חבילה מהדואר" rows="2"></textarea>
+
+    <div class="field-label">מיקום (אופציונלי)</div>
+    <input type="text" id="taskLocation" placeholder="כתובת או שם מקום">
+
+    <div class="field-label">תזכורת (אופציונלי)</div>
+    <div class="quick-times" id="quickTimes">
+      <button class="quick-time-btn" data-mins="15">בעוד 15 דק'</button>
+      <button class="quick-time-btn" data-mins="30">בעוד 30 דק'</button>
+      <button class="quick-time-btn" data-mins="60">בעוד שעה</button>
+      <button class="quick-time-btn" data-mins="0">מותאם אישית ⌄</button>
+    </div>
+    <input type="datetime-local" id="taskTime" style="display:none;">
+
+    <div class="form-actions">
+      <button class="btn-cancel" id="cancelTaskBtn">ביטול</button>
+      <button class="btn-save" id="saveTaskBtn">שמור משימה</button>
+    </div>
+  </div>
+</div>
+
+<div class="list" id="list">
+  <div class="empty">טוען...</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="theme.js"></script>
+<script>
+  // אותו פרויקט Firebase של שאר האפליקציות
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtOg6Bq9Q02iR_G1TSlN7pSZ0wNHp-PdM",
+    authDomain: "tesdb-d3a16.firebaseapp.com",
+    databaseURL: "https://tesdb-d3a16-default-rtdb.firebaseio.com",
+    projectId: "tesdb-d3a16",
+  };
+  firebase.initializeApp(firebaseConfig);
+  TeslaHubTheme.load();
+  const tasksRef = firebase.database().ref("tasks/main/items");
+
+  let currentTab = "active";
+  let allTasks = {};
+  let pickedMins = null;
+
+  // ---- טופס משימה חדשה ----
+  const newTaskToggle = document.getElementById("newTaskToggle");
+  const newTaskForm = document.getElementById("newTaskForm");
+  const taskText = document.getElementById("taskText");
+  const taskLocation = document.getElementById("taskLocation");
+  const taskTime = document.getElementById("taskTime");
+  const quickTimes = document.getElementById("quickTimes");
+
+  newTaskToggle.addEventListener("click", () => {
+    newTaskForm.classList.toggle("show");
+    if (Notification && Notification.permission === "default"){
+      Notification.requestPermission();
+    }
+  });
+
+  quickTimes.addEventListener("click", e => {
+    const btn = e.target.closest(".quick-time-btn");
+    if (!btn) return;
+    quickTimes.querySelectorAll(".quick-time-btn").forEach(b => b.classList.remove("picked"));
+    btn.classList.add("picked");
+    const mins = parseInt(btn.dataset.mins, 10);
+    if (mins === 0){
+      taskTime.style.display = "block";
+      pickedMins = "custom";
+    } else {
+      taskTime.style.display = "none";
+      pickedMins = mins;
+    }
+  });
+
+  function resetForm(){
+    taskText.value = "";
+    taskLocation.value = "";
+    taskTime.value = "";
+    taskTime.style.display = "none";
+    pickedMins = null;
+    quickTimes.querySelectorAll(".quick-time-btn").forEach(b => b.classList.remove("picked"));
+    newTaskForm.classList.remove("show");
+  }
+
+  document.getElementById("cancelTaskBtn").addEventListener("click", resetForm);
+
+  document.getElementById("saveTaskBtn").addEventListener("click", () => {
+    const text = taskText.value.trim();
+    if (!text) return;
+
+    let reminderAt = null;
+    if (pickedMins === "custom" && taskTime.value){
+      reminderAt = new Date(taskTime.value).getTime();
+    } else if (typeof pickedMins === "number" && pickedMins > 0){
+      reminderAt = Date.now() + pickedMins * 60000;
+    }
+
+    tasksRef.push({
+      text,
+      location: taskLocation.value.trim() || null,
+      reminderAt,
+      notified: false,
+      done: false,
+      createdAt: Date.now()
+    });
+    resetForm();
+  });
+
+  // ---- טאבים ----
+  document.getElementById("tabActive").addEventListener("click", () => setTab("active"));
+  document.getElementById("tabDone").addEventListener("click", () => setTab("done"));
+  function setTab(tab){
+    currentTab = tab;
+    document.getElementById("tabActive").classList.toggle("active", tab === "active");
+    document.getElementById("tabDone").classList.toggle("active", tab === "done");
+    render();
+  }
+
+  // ---- עזרי תצוגה ----
+  function formatWhen(ts){
+    const diff = ts - Date.now();
+    const abs = Math.abs(diff);
+    const mins = Math.round(abs / 60000);
+    let label;
+    if (mins < 1) label = "עכשיו";
+    else if (mins < 60) label = `${mins} דק'`;
+    else if (mins < 60*24) label = `${Math.round(mins/60)} שעות`;
+    else label = `${Math.round(mins/60/24)} ימים`;
+    return diff >= 0 ? `בעוד ${label}` : `באיחור של ${label}`;
+  }
+  function mapsUrl(loc){
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`;
+  }
+
+  // ---- רינדור ----
+  function render(){
+    const list = document.getElementById("list");
+    const entries = Object.entries(allTasks)
+      .map(([id, t]) => ({ id, ...t }))
+      .filter(t => (currentTab === "active" ? !t.done : t.done))
+      .sort((a,b) => (a.reminderAt || a.createdAt) - (b.reminderAt || b.createdAt));
+
+    document.getElementById("countActive").textContent =
+      Object.values(allTasks).filter(t => !t.done).length;
+    document.getElementById("countDone").textContent =
+      Object.values(allTasks).filter(t => t.done).length;
+
+    list.innerHTML = "";
+    if (entries.length === 0){
+      list.innerHTML = `<div class="empty">${currentTab === "active" ? "אין משימות פתוחות 🎉" : "עדיין שום דבר לא סומן כבוצע"}</div>`;
+      return;
+    }
+
+    entries.forEach(t => {
+      const card = document.createElement("div");
+      card.className = "task-card" + (t.done ? " done" : "");
+      const overdue = t.reminderAt && !t.done && t.reminderAt < Date.now();
+
+      let metaChips = "";
+      if (t.location){
+        metaChips += `<a class="meta-chip nav" href="${mapsUrl(t.location)}" target="_blank">📍 ${t.location}</a>`;
+      }
+      if (t.reminderAt){
+        metaChips += `<span class="meta-chip${overdue ? " overdue" : ""}">⏰ ${formatWhen(t.reminderAt)}</span>`;
+      }
+
+      card.innerHTML = `
+        <div class="task-top">
+          <button class="check-btn${t.done ? " checked" : ""}" data-id="${t.id}">${t.done ? "✓" : ""}</button>
+          <div class="task-text${t.done ? " done" : ""}">${escapeHtml(t.text)}</div>
+        </div>
+        ${metaChips ? `<div class="task-meta">${metaChips}</div>` : ""}
+        <div class="task-actions">
+          <button class="delete-btn" data-id="${t.id}">מחק</button>
+        </div>`;
+      list.appendChild(card);
+    });
+
+    list.querySelectorAll(".check-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        tasksRef.child(id).update({ done: !allTasks[id].done });
+      });
+    });
+    list.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        tasksRef.child(btn.dataset.id).remove();
+      });
+    });
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  }
+
+  tasksRef.on("value", snap => {
+    allTasks = snap.val() || {};
+    render();
+  });
+
+  // ---- בדיקת תזכורות ----
+  setInterval(() => {
+    const now = Date.now();
+    Object.entries(allTasks).forEach(([id, t]) => {
+      if (!t.done && t.reminderAt && !t.notified && t.reminderAt <= now){
+        tasksRef.child(id).update({ notified: true });
+        if (Notification && Notification.permission === "granted"){
+          new Notification("⏰ תזכורת למשימה", { body: t.text });
+        }
+        if (navigator.vibrate) navigator.vibrate([100,50,100]);
+      }
+    });
+  }, 15000);
+
+  // ---- אייקוני מיני-אפליקציות בשורת הניווט ----
+  (function(){
+    const GITHUB_USER = "yakoviz83-blip";
+    const REPO = "TeslaHUB";
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "tasks.html": "📝", "settings.html": "🎨" };
+    const currentPage = location.pathname.split("/").pop() || "index.html";
+
+    fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
+      .then(r => r.ok ? r.json() : [])
+      .then(items => {
+        const nav = document.querySelector(".global-nav");
+        const titleEl = document.getElementById("navTitle");
+        items
+          .filter(i => i.type === "file" && i.name.toLowerCase().endsWith(".html") && i.name.toLowerCase() !== "index.html")
+          .sort((a,b) => a.name.localeCompare(b.name))
+          .forEach(f => {
+            const a = document.createElement("a");
+            a.href = f.name;
+            a.className = "global-app-icon" + (f.name === currentPage ? " active" : "");
+            a.title = f.name.replace(".html","");
+            a.textContent = ICONS[f.name] || "📄";
+            nav.insertBefore(a, titleEl);
+          });
+      })
+      .catch(() => {});
+  })();
+</script>
+
+</body>
+</html>
