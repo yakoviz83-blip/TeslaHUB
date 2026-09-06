@@ -9,14 +9,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0E1116;
-    --bg-panel: #171B22;
-    --text: #EDEFF2;
-    --text-dim: #8B93A1;
-    --text-on-accent: #1A0F04;
-    --accent: #FF8A34;
+    --bg: #0A0C0B;
+    --bg-panel: #141917;
+    --text: #E8EDE9;
+    --text-dim: #8B978E;
+    --text-on-accent: #05130B;
+    --accent: #2FA76B;
     --accent-soft: rgba(255,138,52,0.14);
-    --border: #262B34;
+    --border: #232925;
     --danger: #E5484D;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
@@ -41,7 +41,7 @@
   .global-nav{
     display:flex; align-items:center; gap:10px;
     padding: 6px 16px;
-    background: #05070a;
+    background: #070907;
     border-bottom: 1px solid var(--border);
     flex-shrink:0;
     font-size:12.5px;
@@ -153,14 +153,14 @@
 
 <div class="global-nav">
   <a href="index.html" class="global-home-btn">🏠 בית</a>
-  <span class="global-nav-title" id="navTitle">TeslaHub</span>
+  <span class="global-nav-title" id="navTitle">TesMot</span>
 </div>
 
 <script>
   (function(){
     const GITHUB_USER = "yakoviz83-blip";
     const REPO = "TeslaHUB";
-    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦" };
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "tasks.html": "📝", "settings.html": "🎨" };
     const currentPage = location.pathname.split("/").pop() || "index.html";
 
     fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
@@ -217,6 +217,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="theme.js"></script>
 <script>
   // אותו פרויקט Firebase של הצ'אט, כדי שאפשר יהיה לשלוח תוצאה ישירות ללוג
   const firebaseConfig = {
@@ -227,6 +228,7 @@
   };
   const ROOM = "main";
   firebase.initializeApp(firebaseConfig);
+  TeslaHubTheme.load();
   const messagesRef = firebase.database().ref(`chat/${ROOM}/messages`);
   const whoAmI = navigator.userAgent.includes("Tesla") ? "טסלה" : "טלפון";
 
