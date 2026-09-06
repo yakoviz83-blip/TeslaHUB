@@ -9,19 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0E1116;
-    --bg-panel: #171B22;
-    --bg-bubble-me: #FF8A34;
-    --bg-bubble-them: #1B2029;
-    --text: #EDEFF2;
-    --text-dim: #8B93A1;
-    --text-on-accent: #1A0F04;
-    --accent: #FF8A34;
+    --bg: #0A0C0B;
+    --bg-panel: #141917;
+    --bg-bubble-me: #2FA76B;
+    --bg-bubble-them: #1A211D;
+    --text: #E8EDE9;
+    --text-dim: #8B978E;
+    --text-on-accent: #05130B;
+    --accent: #2FA76B;
     --accent-soft: rgba(255,138,52,0.14);
-    --border: #262B34;
+    --border: #232925;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
-  html,body{margin:0; padding:0; height:100%; height:100dvh; overflow:hidden;}
+  html,body{margin:0; padding:0; height:100%; overflow:hidden;}
   body{
     background: var(--bg);
     color: var(--text);
@@ -29,7 +29,6 @@
     display:flex;
     flex-direction:column;
     height:100vh;
-    height:100dvh;
   }
   .mono{ font-family: 'JetBrains Mono', monospace; }
 
@@ -37,7 +36,7 @@
   .global-nav{
     display:flex; align-items:center; gap:10px;
     padding: 6px 16px;
-    background: #05070a;
+    background: #070907;
     border-bottom: 1px solid var(--border);
     flex-shrink:0;
     font-size:12.5px;
@@ -233,7 +232,7 @@
     background:none; border:1px solid var(--border); color:var(--text-dim);
     border-radius:8px; width:30px; height:30px; cursor:pointer; font-size:14px;
   }
-  .preview-body{ flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; background: #05070a; }
+  .preview-body{ flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; background: #070907; }
   .preview-body iframe{ width:100%; height:100%; border:none; }
   .preview-body img{ max-width:100%; max-height:100%; object-fit:contain; }
   .preview-empty{ color: var(--text-dim); font-size:13.5px; text-align:center; padding: 20px; }
@@ -243,14 +242,14 @@
 
 <div class="global-nav">
   <a href="index.html" class="global-home-btn">🏠 בית</a>
-  <span class="global-nav-title" id="navTitle">TeslaHub</span>
+  <span class="global-nav-title" id="navTitle">TesMot</span>
 </div>
 
 <script>
   (function(){
     const GITHUB_USER = "yakoviz83-blip";
     const REPO = "TeslaHUB";
-    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦" };
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "tasks.html": "📝", "settings.html": "🎨" };
     const currentPage = location.pathname.split("/").pop() || "index.html";
 
     fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
@@ -277,7 +276,6 @@
 <header>
   <h1><span class="ico">💬</span> Tesla ⇄ טלפון</h1>
   <div class="who-badge" id="whoBadge">אני מזוהה בתור: <b id="whoLabel">...</b></div>
-  <div style="font-size:11px;color:#888;margin-top:2px">גרסה 2026-09-05 14:15</div>
 </header>
 
 <div class="composer">
@@ -285,13 +283,7 @@
     <textarea id="msgInput" placeholder="כתוב הודעה, הדבק קישור או תמונה..." rows="1"></textarea>
     <button class="attach-btn" id="attachBtn" title="צרף תמונה">📎</button>
     <input type="file" id="imgFileInput" accept="image/*" style="display:none;">
-    <button class="attach-btn" id="pasteBtn" title="הדבק מהלוח">📋</button>
     <button class="send-btn" id="sendBtn">שלח</button>
-  </div>
-  <div class="composer-row" style="gap:6px;margin-top:6px">
-    <button class="attach-btn" id="copyBtn" title="העתק" style="font-size:12px;padding:6px 10px">📄 העתק</button>
-    <button class="attach-btn" id="selectAllBtn" title="בחר הכל" style="font-size:12px;padding:6px 10px">🔲 בחר הכל</button>
-    <button class="attach-btn" id="clearBtn" title="נקה" style="font-size:12px;padding:6px 10px">🗑️ נקה</button>
   </div>
   <div class="pending-img" id="pendingImgBox" style="display:none;">
     <img id="pendingImgPreview" src="">
@@ -326,6 +318,7 @@
 <!-- Firebase (compat SDK) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="theme.js"></script>
 <script>
   // =========================================================
   // הגדרות - למלא אחרי יצירת פרויקט Firebase (חינמי)
@@ -341,6 +334,7 @@
   // =========================================================
 
   firebase.initializeApp(firebaseConfig);
+  TeslaHubTheme.load();
   const db = firebase.database();
   const messagesRef = db.ref(`chat/${ROOM}/messages`);
 
@@ -402,7 +396,7 @@
     previewTitle.textContent = shortenUrl(url);
     previewBody.innerHTML = `
       <div style="width:100%;height:100%;display:flex;flex-direction:column;">
-        <div style="flex-shrink:0;padding:8px 12px;background:#12151b;color:var(--text-dim);font-size:11.5px;border-bottom:1px solid var(--border);text-align:center;">
+        <div style="flex-shrink:0;padding:8px 12px;background:#10140F;color:var(--text-dim);font-size:11.5px;border-bottom:1px solid var(--border);text-align:center;">
           🔒 חלק מהאתרים חוסמים תצוגה מוטבעת — אם ריק, לחץ ↗ למעלה לפתיחה בטאב חדש
         </div>
         <iframe src="${embedUrl}" style="flex:1;"></iframe>
@@ -491,47 +485,6 @@
   document.getElementById("pendingImgRemove").addEventListener("click", () => {
     pendingImageData = null;
     pendingImgBox.style.display = "none";
-  });
-
-  const pasteBtn = document.getElementById("pasteBtn");
-  pasteBtn.addEventListener("click", async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (text) {
-        const start = msgInput.selectionStart || msgInput.value.length;
-        const end = msgInput.selectionEnd || msgInput.value.length;
-        msgInput.value = msgInput.value.slice(0, start) + text + msgInput.value.slice(end);
-        msgInput.dispatchEvent(new Event("input"));
-        msgInput.focus();
-      }
-    } catch (e) {
-      alert("לא ניתן לגשת ללוח - נסה להדביק ידנית לתוך השדה (לחיצה ארוכה על השדה ואז הדבק)");
-    }
-  });
-
-  const copyBtn = document.getElementById("copyBtn");
-  copyBtn.addEventListener("click", async () => {
-    if (!msgInput.value) return;
-    try {
-      await navigator.clipboard.writeText(msgInput.value);
-    } catch (e) {
-      // Fallback for browsers without Clipboard API write access
-      msgInput.select();
-      try { document.execCommand("copy"); } catch (e2) { /* ignore */ }
-    }
-  });
-
-  const selectAllBtn = document.getElementById("selectAllBtn");
-  selectAllBtn.addEventListener("click", () => {
-    msgInput.focus();
-    msgInput.select();
-  });
-
-  const clearBtn = document.getElementById("clearBtn");
-  clearBtn.addEventListener("click", () => {
-    msgInput.value = "";
-    msgInput.dispatchEvent(new Event("input"));
-    msgInput.focus();
   });
 
   const attachBtn = document.getElementById("attachBtn");
@@ -666,6 +619,3 @@
 
 </body>
 </html>
-
-
-
