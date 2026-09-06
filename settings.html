@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>הגדרות עיצוב</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C0B;
+    --bg-panel: #141917;
+    --bg-tile: #1A211D;
+    --text: #E8EDE9;
+    --text-dim: #8B978E;
+    --text-on-accent: #05130B;
+    --accent: #2FA76B;
+    --accent-soft: rgba(47,167,107,0.14);
+    --border: #232925;
+    --danger: #E5484D;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%; overflow:hidden;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  .global-nav{
+    display:flex; align-items:center; gap:10px;
+    padding: 6px 16px;
+    background: #070907;
+    border-bottom: 1px solid var(--border);
+    flex-shrink:0;
+    font-size:12.5px;
+  }
+  .global-home-btn{
+    display:flex; align-items:center; gap:5px;
+    color: var(--accent);
+    text-decoration:none;
+    font-weight:800;
+    padding: 4px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+  }
+  .global-home-btn:active{ background: var(--accent-soft); }
+  .global-nav-title{ color: var(--text-dim); margin-inline-start:auto; letter-spacing:0.3px; }
+  .global-app-icon{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    color: var(--text-dim);
+    text-decoration:none;
+    font-size:14px;
+    flex-shrink:0;
+  }
+  .global-app-icon.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink:0;
+  }
+  header h1{ margin:0; font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  header h1 .ico{ color: var(--accent); }
+
+  main{ flex:1; overflow-y:auto; padding: 18px 20px 30px; }
+
+  .field-group{
+    background: var(--bg-panel); border:1px solid var(--border); border-radius:14px;
+    padding: 14px 16px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .field-group .label{ display:flex; flex-direction:column; gap:2px; }
+  .field-group .name{ font-size:14.5px; font-weight:700; }
+  .field-group .desc{ font-size:11.5px; color: var(--text-dim); }
+  .field-group input[type="color"]{
+    width:48px; height:40px; border:1px solid var(--border); border-radius:10px; background:none; cursor:pointer; flex-shrink:0;
+  }
+
+  .status-note{ font-size:11.5px; color: var(--text-dim); margin: 4px 4px 16px; line-height:1.5; }
+
+  .actions{ display:flex; gap:10px; position:sticky; bottom:0; background: var(--bg); padding-top:8px; }
+  .actions button{
+    flex:1; border-radius:12px; padding:13px; font-family:inherit; font-size:14.5px; font-weight:800; cursor:pointer; border:1px solid var(--border);
+  }
+  .btn-save{ background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
+  .btn-reset{ background: var(--bg-tile); color: var(--text-dim); }
+  .saved-note{ text-align:center; font-size:12.5px; color: var(--accent); margin-top:8px; display:none; }
+</style>
+</head>
+<body>
+
+<div class="global-nav">
+  <a href="index.html" class="global-home-btn">🏠 בית</a>
+  <span class="global-nav-title" id="navTitle">TesMot</span>
+</div>
+
+<header>
+  <h1><span class="ico">🎨</span> הגדרות עיצוב</h1>
+</header>
+
+<main>
+  <div class="status-note">
+    השינויים כאן חלים על כל האפליקציות ב-TesMot (כולל עתידיות), ומתעדכנים מיד בכל מכשיר מחובר - בלי צורך להעלות קבצים מחדש.
+  </div>
+
+  <div class="field-group">
+    <div class="label"><span class="name">רקע ראשי</span><span class="desc">הצבע הכללי של הרקע</span></div>
+    <input type="color" id="c-bg">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">רקע משני</span><span class="desc">כרטיסים, פאנלים, שורת הכותרת</span></div>
+    <input type="color" id="c-bgPanel">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">רקע אריחים</span><span class="desc">כרטיסי האפליקציות בדף הבית</span></div>
+    <input type="color" id="c-bgTile">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">טקסט ראשי</span><span class="desc">הטקסט הרגיל</span></div>
+    <input type="color" id="c-text">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">טקסט משני</span><span class="desc">כיתובים עמומים יותר</span></div>
+    <input type="color" id="c-textDim">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">צבע ראשי (accent)</span><span class="desc">כפתורים, הדגשות, אייקון פעיל</span></div>
+    <input type="color" id="c-accent">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">טקסט על גבי הצבע הראשי</span><span class="desc">טקסט בתוך כפתורים בצבע ה-accent</span></div>
+    <input type="color" id="c-textOnAccent">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">קווי מסגרת</span><span class="desc">גבולות עדינים בין אזורים</span></div>
+    <input type="color" id="c-border">
+  </div>
+  <div class="field-group">
+    <div class="label"><span class="name">אזהרה/שגיאה</span><span class="desc">הודעות שגיאה, איחור בתזכורות</span></div>
+    <input type="color" id="c-danger">
+  </div>
+
+  <div class="actions">
+    <button class="btn-reset" id="resetBtn">איפוס לברירת מחדל</button>
+    <button class="btn-save" id="saveBtn">שמור</button>
+  </div>
+  <div class="saved-note" id="savedNote">✓ נשמר - כל האפליקציות יתעדכנו</div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="theme.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtOg6Bq9Q02iR_G1TSlN7pSZ0wNHp-PdM",
+    authDomain: "tesdb-d3a16.firebaseapp.com",
+    databaseURL: "https://tesdb-d3a16-default-rtdb.firebaseio.com",
+    projectId: "tesdb-d3a16",
+  };
+  firebase.initializeApp(firebaseConfig);
+  const themeRef = firebase.database().ref("settings/theme");
+
+  const FIELDS = ["bg","bgPanel","bgTile","text","textDim","accent","textOnAccent","border","danger"];
+
+  function fillForm(theme){
+    FIELDS.forEach(key => {
+      document.getElementById("c-" + key).value = theme[key];
+    });
+  }
+
+  TeslaHubTheme.load(theme => fillForm(theme));
+
+  // תצוגה חיה - כל שינוי בבורר צבע מיישם מיד (בלי לשמור עדיין)
+  FIELDS.forEach(key => {
+    document.getElementById("c-" + key).addEventListener("input", () => {
+      const current = {};
+      FIELDS.forEach(k => current[k] = document.getElementById("c-" + k).value);
+      TeslaHubTheme.applyTheme(current);
+    });
+  });
+
+  document.getElementById("saveBtn").addEventListener("click", () => {
+    const theme = {};
+    FIELDS.forEach(k => theme[k] = document.getElementById("c-" + k).value);
+    themeRef.set(theme).then(() => {
+      const note = document.getElementById("savedNote");
+      note.style.display = "block";
+      setTimeout(() => note.style.display = "none", 2500);
+    });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    fillForm(TeslaHubTheme.DEFAULT_THEME);
+    TeslaHubTheme.applyTheme(TeslaHubTheme.DEFAULT_THEME);
+    themeRef.set(TeslaHubTheme.DEFAULT_THEME);
+  });
+
+  // אייקוני מיני-אפליקציות בשורת הניווט
+  (function(){
+    const GITHUB_USER = "yakoviz83-blip";
+    const REPO = "TeslaHUB";
+    const ICONS = { "chat.html": "💬", "chat-1.html": "💬", "qr-scanner.html": "▦", "tasks.html": "📝", "settings.html": "🎨" };
+    const currentPage = location.pathname.split("/").pop() || "index.html";
+
+    fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/`)
+      .then(r => r.ok ? r.json() : [])
+      .then(items => {
+        const nav = document.querySelector(".global-nav");
+        const titleEl = document.getElementById("navTitle");
+        items
+          .filter(i => i.type === "file" && i.name.toLowerCase().endsWith(".html") && i.name.toLowerCase() !== "index.html")
+          .sort((a,b) => a.name.localeCompare(b.name))
+          .forEach(f => {
+            const a = document.createElement("a");
+            a.href = f.name;
+            a.className = "global-app-icon" + (f.name === currentPage ? " active" : "");
+            a.title = f.name.replace(".html","");
+            a.textContent = ICONS[f.name] || "📄";
+            nav.insertBefore(a, titleEl);
+          });
+      })
+      .catch(() => {});
+  })();
+</script>
+
+</body>
+</html>
