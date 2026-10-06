@@ -61,6 +61,19 @@
     flex-shrink:0;
   }
   .global-app-icon.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .global-util-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:none;
+    color: var(--text-dim);
+    font-size:14px;
+    cursor:pointer;
+    flex-shrink:0;
+    font-family:inherit;
+  }
+  .global-util-btn.on{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
   header{
     display:flex; align-items:center; justify-content:space-between;
@@ -86,6 +99,7 @@
 
   .status-note{ font-size:11.5px; color: var(--text-dim); margin: 4px 4px 16px; line-height:1.5; }
 
+  .fb-link{ background: var(--accent); color: var(--text-on-accent, #000); padding:10px 18px; border-radius:10px; font-weight:700; text-decoration:none; }
   .actions{ display:flex; gap:10px; position:sticky; bottom:0; background: var(--bg); padding-top:8px; }
   .actions button{
     flex:1; border-radius:12px; padding:13px; font-family:inherit; font-size:14.5px; font-weight:800; cursor:pointer; border:1px solid var(--border);
@@ -100,6 +114,8 @@
 <div class="global-nav">
   <a href="index.html" class="global-home-btn">🏠 בית</a>
   <span class="global-nav-title" id="navTitle">TesMot</span>
+  <button class="global-util-btn" id="soundTestBtn" title="בדיקת צליל">🔊</button>
+  <button class="global-util-btn" id="fsToggleBtn" title="מסך מלא">⤢</button>
 </div>
 
 <header>
@@ -148,6 +164,11 @@
     <input type="color" id="c-danger">
   </div>
 
+  <div class="field-group">
+    <div class="label"><span class="name">ניהול Firebase</span><span class="desc">מסד הנתונים של הצ'אט והמשימות (כללי הרשאות, שימוש)</span></div>
+    <a class="fb-link" href="https://console.firebase.google.com/project/tesdb-d3a16/database/tesdb-d3a16-default-rtdb/rules" target="_blank" rel="noopener">פתיחה</a>
+  </div>
+
   <div class="actions">
     <button class="btn-reset" id="resetBtn">איפוס לברירת מחדל</button>
     <button class="btn-save" id="saveBtn">שמור</button>
@@ -158,6 +179,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="theme.js"></script>
+<script src="nav-utils.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBtOg6Bq9Q02iR_G1TSlN7pSZ0wNHp-PdM",
@@ -177,6 +199,7 @@
   }
 
   TeslaHubTheme.load(theme => fillForm(theme));
+  TesMotNavUtils.init();
 
   // תצוגה חיה - כל שינוי בבורר צבע מיישם מיד (בלי לשמור עדיין)
   FIELDS.forEach(key => {
