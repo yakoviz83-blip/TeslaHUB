@@ -63,6 +63,19 @@
     flex-shrink:0;
   }
   .global-app-icon.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .global-util-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:none;
+    color: var(--text-dim);
+    font-size:14px;
+    cursor:pointer;
+    flex-shrink:0;
+    font-family:inherit;
+  }
+  .global-util-btn.on{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
   /* ---- Header ---- */
   header{
@@ -243,6 +256,8 @@
 <div class="global-nav">
   <a href="index.html" class="global-home-btn">🏠 בית</a>
   <span class="global-nav-title" id="navTitle">TesMot</span>
+  <button class="global-util-btn" id="soundTestBtn" title="בדיקת צליל">🔊</button>
+  <button class="global-util-btn" id="fsToggleBtn" title="מסך מלא">⤢</button>
 </div>
 
 <script>
@@ -319,6 +334,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="theme.js"></script>
+<script src="nav-utils.js"></script>
 <script>
   // =========================================================
   // הגדרות - למלא אחרי יצירת פרויקט Firebase (חינמי)
@@ -335,6 +351,7 @@
 
   firebase.initializeApp(firebaseConfig);
   TeslaHubTheme.load();
+  TesMotNavUtils.init();
   const db = firebase.database();
   const messagesRef = db.ref(`chat/${ROOM}/messages`);
 
@@ -522,17 +539,23 @@
   function sendMessage(){
     const text = msgInput.value.trim();
     if (!text && !pendingImageData) return;
-    messagesRef.push({
-      sender: whoAmI,
-      text: text || null,
-      image: pendingImageData || null,
-      ts: Date.now()
-    });
-    msgInput.value = "";
-    msgInput.style.height = "44px";
-    pendingImageData = null;
-    pendingImgBox.style.display = "none";
-    trimOldMessages();
+    const payload = { sender: whoAmI, text: text || null, image: pendingImageData || null, ts: Date.now() };
+    const prevText = msgInput.value, prevImg = pendingImageData;
+    sendBtn.disabled = true;
+    messagesRef.push(payload).then(() => {
+      msgInput.value = "";
+      msgInput.style.height = "44px";
+      pendingImageData = null;
+      pendingImgBox.style.display = "none";
+      trimOldMessages();
+    }).catch(err => {
+      msgInput.value = prevText; pendingImageData = prevImg;
+      const code = (err && (err.code || err.message)) || "unknown";
+      const hint = /permission/i.test(code)
+        ? "ההרשאות של Firebase חסמו את הכתיבה (כנראה פג תוקף כללי ה-Test Mode)."
+        : "בדוק חיבור אינטרנט.";
+      alert("ההודעה לא נשלחה. " + hint + "\n(" + code + ")");
+    }).then(() => { sendBtn.disabled = false; });
   }
 
   function trimOldMessages(){
