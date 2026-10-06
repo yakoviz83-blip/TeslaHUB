@@ -291,6 +291,7 @@
 <header>
   <h1><span class="ico">💬</span> Tesla ⇄ טלפון</h1>
   <div class="who-badge" id="whoBadge">אני מזוהה בתור: <b id="whoLabel">...</b></div>
+  <div class="who-badge" id="connState" style="margin-top:4px">חיבור לשרת: בודק... (גרסה 3)</div>
 </header>
 
 <div class="composer">
@@ -333,6 +334,13 @@
 <!-- Firebase (compat SDK) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<div id="errBanner" style="display:none;position:fixed;inset-inline:8px;bottom:8px;z-index:99999;background:#7a1f18;color:#fff;padding:10px 14px;border-radius:10px;font:13px/1.4 sans-serif;direction:ltr;word-break:break-word"></div>
+<script>
+  window.addEventListener("error", function(e){
+    var b=document.getElementById("errBanner"); if(!b) return;
+    b.style.display="block"; b.textContent="JS error: "+(e.message||"?")+(e.filename?" @ "+e.filename.split("/").pop()+":"+e.lineno:"");
+  });
+</script>
 <script src="theme.js"></script>
 <script src="nav-utils.js"></script>
 <script>
@@ -349,11 +357,26 @@
   const MAX_MESSAGES = 150;
   // =========================================================
 
+  try{ if (typeof TeslaHubTheme !== "undefined") TeslaHubTheme.load(); }catch(e){ console.error(e); }
+  try{ if (typeof TesMotNavUtils !== "undefined") TesMotNavUtils.init(); }catch(e){ console.error(e); }
+  if (typeof firebase === "undefined"){
+    throw new Error("Firebase SDK לא נטען (gstatic חסום או אין אינטרנט)");
+  }
   firebase.initializeApp(firebaseConfig);
-  TeslaHubTheme.load();
-  TesMotNavUtils.init();
   const db = firebase.database();
   const messagesRef = db.ref(`chat/${ROOM}/messages`);
+
+  // ---- מצב חיבור ----
+  (function(){
+    const el = document.getElementById("connState");
+    let got = false;
+    db.ref(".info/connected").on("value", s => {
+      got = true;
+      el.textContent = s.val() ? "חיבור לשרת: ✓ מחובר" : "חיבור לשרת: ✗ מנותק";
+      el.style.color = s.val() ? "" : "#e5645a";
+    });
+    setTimeout(() => { if (!got){ el.textContent = "חיבור לשרת: ✗ לא מצליח להתחבר"; el.style.color = "#e5645a"; } }, 8000);
+  })();
 
   // ---- זיהוי מכשיר ----
   const WHO_KEY = "teslahub-chat-who";
